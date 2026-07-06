@@ -1,14 +1,14 @@
 /**
- * app.js
- * Defines the input schema, renders form fields, reads values,
- * calls formulas.js, and displays results.
+ * inputs.js
+ * Defines the greenhouse data input schema for a single row,
+ * and derives calculated columns from the primary inputs.
  */
 
 "use strict";
 
 const GREENHOUSE_INPUTS = [
  
-  // ── SECTION 1: Location & Orientation ──────────────────────────────────────
+  // SECTION 1: Location & Orientation
   { id:"latitude",                  label:"Latitude",                                    unit:"°N",         default:28.12,  section:"location",    subsection:"coordinates" },
   { id:"longitude",                 label:"Longitude",                                   unit:"°E",         default:35.32,  section:"location",    subsection:"coordinates" },
   { id:"timeZoneUTC",               label:"Time Zone (UTC)",                             unit:"hrs",        default:3,      section:"location",    subsection:"coordinates" },
@@ -16,7 +16,7 @@ const GREENHOUSE_INPUTS = [
   { id:"wallsTilt",                 label:"Walls tilt",                                  unit:"degrees",    default:90,     section:"location",    subsection:"orientation" },
   { id:"roofTilt",                  label:"Roof tilt",                                   unit:"degrees",    default:22,     section:"location",    subsection:"orientation" },
  
-  // ── SECTION 2: Structure ────────────────────────────────────────────────────
+  // SECTION 2: Structure
   { id:"numberOfBays",              label:"Number of bays",                              unit:"",           default:4,      section:"structure",   subsection:"geometry" },
   { id:"length",                    label:"Length",                                      unit:"m",          default:194,    section:"structure",   subsection:"geometry" },
   { id:"spanWidth",                 label:"Span Width",                                  unit:"m",          default:12,     section:"structure",   subsection:"geometry" },
@@ -40,7 +40,7 @@ const GREENHOUSE_INPUTS = [
   { id:"thermalConductivityPolystyrene",label:"Thermal conductivity of polystyrene",     unit:"W m-1K-1",   default:0.03,   section:"structure",   subsection:"walls" },
   { id:"perimeterHeatLossFactorFp",    label:"Perimeter heat loss factor (Fp)",          unit:"W m-1K-1",   default:0.85,   section:"structure",   subsection:"walls" },
  
-  // ── SECTION 3: Crop ─────────────────────────────────────────────────────────
+  // SECTION 3: Crop
   { id:"leafAreaIndexTomato",       label:"Leaf area index",                             unit:"",           default:3,      section:"crop",        subsection:"plant" },
   { id:"leafLengthTomato",          label:"Characteristic leaf length",                  unit:"m",          default:0.027,  section:"crop",        subsection:"plant" },
   { id:"plantEmissivity",           label:"Emissivity coefficient of plants",            unit:"",           default:0.9,    section:"crop",        subsection:"plant" },
@@ -50,7 +50,7 @@ const GREENHOUSE_INPUTS = [
   { id:"soilTemperature",           label:"Soil temperature",                            unit:"°C",         default:15,     section:"crop",        subsection:"soil" },
   { id:"subsoilDepth",              label:"Depth of subsoil",                            unit:"m",          default:3,      section:"crop",        subsection:"soil" },
  
-  // ── SECTION 4: Environment ──────────────────────────────────────────────────
+  // SECTION 4: Environment
   { id:"indoorSetpointDay",         label:"Temperature setpoint (day)",                  unit:"°C",         default:25,     section:"environment", subsection:"climate" },
   { id:"indoorSetpointNight",       label:"Temperature setpoint (night)",                unit:"°C",         default:16,     section:"environment", subsection:"climate" },
   { id:"indoorSetpointRHDay",       label:"Relative humidity setpoint (day)",            unit:"%",          default:75,     section:"environment", subsection:"climate" },
@@ -78,7 +78,6 @@ const GREENHOUSE_INPUTS = [
   { id:"airDensity",                label:"Density of air",                              unit:"kg/m3",      default:1.117,  section:"environment", subsection:"constants" },
   { id:"specificHeatAir",           label:"Specific heat capacity of air",               unit:"J kg-1°C-1", default:1003.5, section:"environment", subsection:"constants" },
   { id:"sensibleHeatFactor",        label:"Sensible heat factor",                        unit:"",           default:1,      section:"environment", subsection:"constants" },
- 
 ];
 
 const GREENHOUSE_DERIVED = [
@@ -120,10 +119,8 @@ const GREENHOUSE_DERIVED = [
 ];
 
 const INPUTS = (p) => ({
-  // location
   lstMeridian:      p.timeZoneUTC * 15,
 
-  // geometry areas
   areaSouthRoof:    Math.sqrt((0.5*p.spanWidth)**2 + (p.ridgeHeight-p.gutterHeight)**2) * p.length * p.numberOfBays,
   areaNorthRoof:    Math.sqrt((0.5*p.spanWidth)**2 + (p.ridgeHeight-p.gutterHeight)**2) * p.length * p.numberOfBays,
   areaSouthWall:    p.gutterHeight * p.length,
@@ -134,7 +131,7 @@ const INPUTS = (p) => ({
   perimeter:        2 * (p.length + p.totalWidth),
   volume:           p.length * p.spanWidth * p.numberOfBays * p.gutterHeight,
 
-  // transparent areas
+  // these values aren't used currently and the roof is hardcoded to be fully transparent
   transpSouthRoof:  Math.sqrt((0.5*p.spanWidth)**2 + (p.ridgeHeight-p.gutterHeight)**2) * p.length * p.numberOfBays,
   transpNorthRoof:  Math.sqrt((0.5*p.spanWidth)**2 + (p.ridgeHeight-p.gutterHeight)**2) * p.length * p.numberOfBays,
   transpSouthWall:  p.heightTransparentWall * p.length,
@@ -142,15 +139,13 @@ const INPUTS = (p) => ({
   transpEastWall:   p.heightTransparentWall * p.spanWidth * p.numberOfBays,
   transpWestWall:   p.heightTransparentWall * p.spanWidth * p.numberOfBays,
 
-  // non-transparent areas
-  nonTranspSouthRoof: 0,
-  nonTranspNorthRoof: 0,
+  nonTranspSouthRoof: 0, // = p.areaSouthRoof - p.transpSouthRoof = 0
+  nonTranspNorthRoof: 0, // = p.areaNorthRoof - p.transpNorthRoof = 0
   nonTranspSouthWall: p.length * p.heightNonTransparentWall,
   nonTranspNorthWall: p.length * p.heightNonTransparentWall,
   nonTranspEastWall:  (p.spanWidth*p.gutterHeight + 0.5*p.spanWidth*(p.ridgeHeight-p.gutterHeight)) * p.numberOfBays,
   nonTranspWestWall:  (p.spanWidth*p.gutterHeight + 0.5*p.spanWidth*(p.ridgeHeight-p.gutterHeight)) * p.numberOfBays,
 
-  // azimuths
   azimuthSouthWall: 0   + p.azimuthTurn,
   azimuthNorthWall: 180 + p.azimuthTurn,
   azimuthEastWall:  -90 + p.azimuthTurn,
@@ -158,11 +153,9 @@ const INPUTS = (p) => ({
   azimuthSouthRoof: 0   + p.azimuthTurn,
   azimuthNorthRoof: 180 + p.azimuthTurn,
 
-  // shading
   shadingFactor:    1 - (1 - 0.65) * (1 - 0.32),
   shadingFactor1:   1 - (1 - 0.65),
 });
 
 // ── Helper: build a primary object from GREENHOUSE_INPUTS defaults ────────────
-const defaultInputs = () =>
-  Object.fromEntries(GREENHOUSE_INPUTS.map(({ id, default: val }) => [id, val]));
+const defaultInputs = () => Object.fromEntries(GREENHOUSE_INPUTS.map(({ id, default: val }) => [id, val]));

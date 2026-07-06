@@ -34,12 +34,14 @@ const WEATHER_DERIVED = [
 ];
 
 const WEATHER = (p, inp) => {
+  
   const svp = 0.61078 * Math.exp((17.27 * p.tDryBulb) / (p.tDryBulb + 237.3));
   const vp = (p.rh / 100) * svp;
   const indoorT = p.ih > 0 ? inp.indoorSetpointDay : inp.indoorSetpointNight;
   const indoorRH = p.ih > 0 ? inp.indoorSetpointRHDay : inp.indoorSetpointRHNight;
   const indoorSVP = 0.61078 * Math.exp((17.27 * indoorT) / (indoorT + 237.3));
   const indoorVP = (indoorRH / 100) * indoorSVP;
+
   return {
     saturatedVaporPressure: svp,
     vaporPressure:          vp,
@@ -50,12 +52,4 @@ const WEATHER = (p, inp) => {
   };
 };
 
-// ── Helper: build a primary object from WEATHER_INPUTS defaults ───────────────
-const defaultWeather = () =>
-  Object.fromEntries(WEATHER_INPUTS.map(({ id, default: val }) => [id, val]));
-
-// ── Example usage ─────────────────────────────────────────────────────────────
-// const primary = defaultWeather();
-// const allWeather = { ...primary, ...WEATHER(primary, inp) };
-// console.log(allWeather.saturatedVaporPressure); // ~1.9377
-// console.log(allWeather.indoorTemperature);      // 16  (ih=0 at night)
+const defaultWeather = () => Object.fromEntries(WEATHER_INPUTS.map(({ id, default: val }) => [id, val]));

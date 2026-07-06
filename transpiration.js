@@ -1,11 +1,6 @@
 /**
  * transpiration.js
- * Calculates one row of the Transpiration tab given:
- *   - inp: the full input object  { ...defaultPrimary(), ...INPUTS(primary) }
- *   - w:   the full weather row   { ...defaultWeather(), ...WEATHER(weatherRow) }
- *
- * w.indoorTemperature and w.indoorRH come from weather.js (moved from Calculation tab).
- *
+ * Calculates one row of the Transpiration tab given the full input row and the full weather row.
  * The output `transpiration` (col N, W/m²) is the value consumed by calculation.js as
  * the `transpiration` argument.
  */
@@ -29,18 +24,14 @@ const TRANSPIRATION_DERIVED = [
   { id:"transpiration",   label:"Transpiration (W/m²)",                           unit:"W/m²"   },
 ];
 
-// All formulas mirror the Excel Transpiration tab row formulas exactly.
-// inp = { ...primaryInputs, ...INPUTS(primary) }
-// w   = { ...weatherRow,    ...WEATHER(weatherRow) }
 const TRANSPIRATION = (inp, w) => {
   const lai    = inp.leafAreaIndexTomato;
   const lf     = inp.leafLengthTomato;
   const tau    = inp.transmissivitySolar;
   const lv     = inp.latentHeatVaporization;
   const albedo = inp.plantAlbedo;
-  const indoorRH = inp.indoorRH;   // setpoint RH from inp (B86)
   const indoorT  = w.indoorTemperature;
-  const indoorRh = w.indoorRH;
+  const indoorRH = w.indoorRH;
 
   // [A] Net radiation Rn (W/m²)
   // Accounts for shading factor based on ih level, transmissivity, plant albedo, and LAI extinction
@@ -55,7 +46,7 @@ const TRANSPIRATION = (inp, w) => {
   const xSatAir = 5.5638 * Math.exp(0.0572 * indoorT);
 
   // [C] Actual vapor concentration of air (g/m³) — uses indoor setpoint RH (B86)
-  const xActAir = xSatAir * indoorRh / 100;
+  const xActAir = xSatAir * indoorRH / 100;
 
   // [D] Vapor concentration difference (g/m³)
   const vaporDiff = xSatAir - xActAir;
@@ -82,7 +73,7 @@ const TRANSPIRATION = (inp, w) => {
   const es = 0.61078 * Math.exp(17.27 * indoorT / (indoorT + 237.3));
 
   // [K] Actual vapor pressure indoors ea (kPa)
-  const ea = (indoorRh / 100) * es;
+  const ea = (indoorRH / 100) * es;
 
   // [L] Delta — slope of saturation vapor pressure curve (kPa/°C)
   const delta = (4098 * es) / Math.pow(indoorT + 237.3, 2);
