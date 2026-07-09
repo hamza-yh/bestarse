@@ -1,12 +1,10 @@
 /**
  * weather.js
- * Defines the weather data input schema for a single row,
+ * 
+ * Defines the weather data input schema for a a single time row,
  * and derives calculated columns from the primary inputs.
  *
- * Also owns Indoor Temperature, Indoor RH, and Indoor Humidity Ratio —
- * these are derived purely from weather (ih) and indoor setpoints,
- * so they live here rather than in the Calculation tab.
- */
+ *  */
 
 "use strict";
 

@@ -91,20 +91,6 @@ body {
   padding: 20px;
 }
 
-/* Collapsed state (constants) */
-.card-collapsed .card-body { display: none; }
-
-.toggle-btn {
-  background: none;
-  border: 1px solid #b8ccbc;
-  border-radius: 4px;
-  padding: 3px 10px;
-  font-size: 11px;
-  color: #4a6e55;
-  cursor: pointer;
-}
-.toggle-btn:hover { background: #eef4ef; }
-
 /* ── Fields grid — 2 columns ── */
 .fields-grid {
   display: grid;

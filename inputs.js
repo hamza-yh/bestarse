@@ -1,11 +1,27 @@
 /**
  * inputs.js
- * Defines the greenhouse data input schema for a single row,
- * and derives calculated columns from the primary inputs.
+ * 
+ * GREENHOUSE_INPUTS
+ * Defines what input values the user need to enter for the greenhouse model.
+ * 
+ * 
+ * This file is used to define the input values used by the greenhouse model. This is divided into user inputs and derived values.
+ * In addition, the INPUTS function is used to calculate the derived values from the primary inputs.
  */
 
 "use strict";
 
+/**
+ * GREENHOUSE_INPUTS
+ * Defines the input values for the greenhouse model.
+ * 
+ * id: The unique identifier for the input value. Don't modify this unless you know what you're doing.
+ * label: The label for the input value. This is used in the UI for informational purposes.
+ * unit: The unit for the input value. This is used in the UI for informational purposes.
+ * default: The default value for the input value. THis is currently used to quickly test with the excel spreadsheet
+ * section: The specific tab the input is found on.
+ * subsection: The specific section of the tab the input is found on.
+ */
 const GREENHOUSE_INPUTS = [
  
   // SECTION 1: Location & Orientation
@@ -131,7 +147,8 @@ const INPUTS = (p) => ({
   perimeter:        2 * (p.length + p.totalWidth),
   volume:           p.length * p.spanWidth * p.numberOfBays * p.gutterHeight,
 
-  // these values aren't used currently and the roof is hardcoded to be fully transparent
+  // Only the the four nonTransp wall caclulations are used in the current model. 
+  // The roof is assumed to be fully transparant
   transpSouthRoof:  Math.sqrt((0.5*p.spanWidth)**2 + (p.ridgeHeight-p.gutterHeight)**2) * p.length * p.numberOfBays,
   transpNorthRoof:  Math.sqrt((0.5*p.spanWidth)**2 + (p.ridgeHeight-p.gutterHeight)**2) * p.length * p.numberOfBays,
   transpSouthWall:  p.heightTransparentWall * p.length,
@@ -139,8 +156,8 @@ const INPUTS = (p) => ({
   transpEastWall:   p.heightTransparentWall * p.spanWidth * p.numberOfBays,
   transpWestWall:   p.heightTransparentWall * p.spanWidth * p.numberOfBays,
 
-  nonTranspSouthRoof: 0, // = p.areaSouthRoof - p.transpSouthRoof = 0
-  nonTranspNorthRoof: 0, // = p.areaNorthRoof - p.transpNorthRoof = 0
+  nonTranspSouthRoof: 0, // 0 because the roof is assumed to be fully transparant
+  nonTranspNorthRoof: 0, // 0 because the roof is assumed to be fully transparant
   nonTranspSouthWall: p.length * p.heightNonTransparentWall,
   nonTranspNorthWall: p.length * p.heightNonTransparentWall,
   nonTranspEastWall:  (p.spanWidth*p.gutterHeight + 0.5*p.spanWidth*(p.ridgeHeight-p.gutterHeight)) * p.numberOfBays,
